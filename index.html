@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Satteldach – fester Rahmen</title>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#131a33; --ink:#e8ecff; --muted:#a8b3d9;
+      --roof1:#c74a4a; --roof2:#8e2e2e; --roof-stroke:#5c1f1f;
+      --house:#1b2b57; --house-stroke:#8aa4ff; --accent:#72e6b9; --fillarea:#2ecc71;
+      --window:#cfe7ff; --frame:#8aa4ff; --door:#4b5b86; --handle:#ffd77a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%; margin:0; overflow:hidden}
+    body{background:var(--bg); color:var(--ink); font-family:system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif; display:flex; align-items:center; justify-content:center}
+    .card{background:var(--panel); border:1px solid rgba(255,255,255,.08); border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.35); width:min(96vw,1280px); height:100vh; max-height:100vh; padding:18px; display:flex; flex-direction:column; gap:10px; overflow:hidden}
+    h1{margin:0 0 6px; font-size:clamp(18px,2.8vw,26px)}
+    p{margin:0 0 14px; color:var(--muted)}
+    .controls{display:flex; flex-direction:column; gap:12px}
+    .control-group{display:grid; grid-template-columns:auto 1fr auto; gap:8px 10px; align-items:center}
+    input[type=range]{width:100%; height:36px}
+    input[type=range]::-webkit-slider-thumb{width:28px;height:28px;border-radius:50%;background:#8aa4ff;border:none;margin-top:-10px}
+    input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:6px;background:#31407a}
+    .badge{background:#0f1630; border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:6px 10px; font-variant-numeric:tabular-nums; font-size:16px}
+    .svg-wrap{flex:1 1 auto; min-height:0}
+    svg{width:100%; height:100%; background:#0f1630; border-radius:12px; display:block; touch-action:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Satteldach (gleichschenklig)</h1>
+    <p>Hausbreite & Dachneigung einstellen. 2,30&nbsp;m‑Parallele über AB wird angezeigt. Die grüne Fläche zeigt die eingeschlossene Zone; ab <strong>= 75&nbsp;%</strong> erscheint „Vollgeschoss“.</p>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="base">Hausbreite (m)</label>
+        <input id="base" type="range" min="5" max="20" value="12" step="0.1" />
+        <span id="baseOut" class="badge">12.0 m</span>
+      </div>
+      <div class="control-group">
+        <label for="angle">Dachneigung (°)</label>
+        <input id="angle" type="range" min="10" max="65" value="30" step="1" />
+        <span id="angleOut" class="badge">30°</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <div id="percentInfo" class="badge">Einschluss: 0.0% von Hausbreite (0.00 m von 12.00 m)</div>
+      </div>
+    </div>
+
+    <div class="svg-wrap">
+      <svg id="svg" viewBox="0 0 3000 2000" aria-label="Haus mit Satteldach" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--roof1)"/>
+            <stop offset="100%" stop-color="var(--roof2)"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Hauskörper unter AB (A,B sind obere Ecken) -->
+        <rect id="house" fill="var(--house)" stroke="var(--house-stroke)" stroke-width="3"/>
+        <!-- Tür & Fenster -->
+        <rect id="door" fill="var(--door)" stroke="var(--house-stroke)" stroke-width="3"/>
+        <circle id="handle" r="10" fill="var(--handle)"/>
+        <rect id="winL" fill="var(--window)" stroke="var(--frame)" stroke-width="3"/>
+        <line id="winLh" stroke="var(--frame)" stroke-width="2"/>
+        <line id="winLv" stroke="var(--frame)" stroke-width="2"/>
+        <rect id="winR" fill="var(--window)" stroke="var(--frame)" stroke-width="3"/>
+        <line id="winRh" stroke="var(--frame)" stroke-width="2"/>
+        <line id="winRv" stroke="var(--frame)" stroke-width="2"/>
+
+        <!-- Dach (gleichschenkliges Dreieck) -->
+        <polygon id="tri" fill="url(#roofGrad)" stroke="var(--roof-stroke)" stroke-width="4"/>
+
+        <!-- Traufe AB und 2,30 m Parallele -->
+        <line id="lineAB" stroke="#d7e0ff" stroke-width="3"/>
+        <line id="lineParallel" stroke="#ffcc70" stroke-dasharray="10 6" stroke-width="3"/>
+        <line id="segInside" stroke="var(--accent)" stroke-width="6"/>
+
+        <!-- Eingeschlossene Fläche (zwischen Parallele und AB) -->
+        <rect id="fillArea" fill="var(--fillarea)" fill-opacity="0.4"/>
+        <text id="fullLabel" fill="#ffffff" font-size="32" text-anchor="middle" dominant-baseline="middle" style="display:none; pointer-events:none; font-weight:700;">Vollgeschoss</text>
+
+        <!-- Punkte / Labels -->
+        <circle id="ptA" r="10" fill="#ffcc70"/>
+        <circle id="ptB" r="10" fill="#9ad1ff"/>
+        <circle id="ptC" r="10" fill="#72e6b9"/>
+        <text id="lblA" fill="#fff" font-size="24">A</text>
+        <text id="lblB" fill="#fff" font-size="24">B</text>
+        <text id="lblC" fill="#fff" font-size="24">C</text>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    // === PWA: Service Worker Registrierung (mit Auto-Update) ===
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          function readyToActivate(sw) {
+            if (sw && sw.state === 'installed') {
+              if (navigator.serviceWorker.controller) {
+                sw.postMessage({ type: 'SKIP_WAITING' });
+              }
+            }
+          }
+          if (reg.waiting) readyToActivate(reg.waiting);
+          reg.addEventListener('updatefound', () => {
+            const sw = reg.installing;
+            sw && sw.addEventListener('statechange', () => readyToActivate(sw));
+          });
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+          });
+        }).catch(console.error);
+      });
+    }
+
+    // ==== Konstanten & Maßstab ====
+    const SCALE = 0.01;          // 1 px = 0.01 m  (→ 10 px = 0.1 m)
+    const PARALLEL_M = 2.30;     // Abstand der Parallelen über AB
+    const WALL_H_M   = 3.00;     // Höhe Hauskörper unter AB
+
+    // Hausdetails (Ansicht)
+    const DOOR_W_M = 1.00, DOOR_H_M = 2.00;
+    const WIN_S_M  = 1.20, WIN_PAD_M = 0.50, WIN_Y_OFF_M = 0.60;
+
+    // Vorkalkulation (Pixelwerte)
+    const PARALLEL = PARALLEL_M / SCALE;
+    const WALL_H   = WALL_H_M   / SCALE;
+
+    // Fixpunkt A (linke Traufe) – weiter nach unten gesetzt
+    const A0 = { x: 500, y: 1400 }; 
+    let A = { ...A0 };
+    let B = { x: A.x + (12 / SCALE), y: A.y };
+
+    // ==== DOM-Refs ====
+    const $ = (id) => document.getElementById(id);
+    const angleInput = $("angle"), baseInput = $("base");
+    const angleOut = $("angleOut"), baseOut = $("baseOut");
+
+    const svg = $("svg");
+    const tri = $("tri"), house = $("house"), door = $("door"), handle = $("handle");
+    const winL = $("winL"), winLh = $("winLh"), winLv = $("winLv");
+    const winR = $("winR"), winRh = $("winRh"), winRv = $("winRv");
+    const ptA = $("ptA"), ptB = $("ptB"), ptC = $("ptC");
+    const lblA = $("lblA"), lblB = $("lblB"), lblC = $("lblC");
+    const lineAB = $("lineAB"), lineParallel = $("lineParallel"), segInside = $("segInside"), fillArea = $("fillArea"), fullLabel = $("fullLabel");
+    const percentInfo = $("percentInfo");
+
+    const setAttrs = (el, o) => { for (const k in o) el.setAttribute(k, o[k]); };
+    const rad = (deg) => (deg * Math.PI) / 180;
+
+    function update(){
+      // Eingaben & Anzeigen
+      const tDeg = +angleInput.value;             // Dachneigung (°)
+      const width_m = +baseInput.value;           // Hausbreite (m)
+      const L = width_m / SCALE;                  // Breite in px
+      A = { ...A0 };
+      B = { x: A.x + L, y: A.y };
+
+      angleOut.textContent = `${tDeg}\u00B0`;
+      baseOut.textContent  = `${width_m.toFixed(1)} m`;
+
+      // Geometrie Dach (isoskeles, Spitze über Mitte)
+      const midX = (A.x + B.x) / 2;
+      const h = (L / 2) * Math.tan(rad(tDeg));    // Dachhöhe (px)
+      const C = { x: midX, y: A.y - h };
+
+      // Hauskörper
+      setAttrs(house, { x: A.x, y: A.y, width: L, height: WALL_H });
+
+      // Dachpolygon
+      tri.setAttribute('points', `${C.x},${C.y} ${A.x},${A.y} ${B.x},${B.y}`);
+
+      // Punkte & Labels
+      setAttrs(ptA, { cx: A.x, cy: A.y }); setAttrs(ptB, { cx: B.x, cy: B.y }); setAttrs(ptC, { cx: C.x, cy: C.y });
+      setAttrs(lblA, { x: A.x - 18, y: A.y - 10 }); setAttrs(lblB, { x: B.x + 6, y: B.y - 10 }); setAttrs(lblC, { x: C.x + 8, y: C.y - 10 });
+
+      // Traufe AB & Parallele
+      setAttrs(lineAB, { x1: A.x, y1: A.y, x2: B.x, y2: B.y });
+      const yP = A.y - PARALLEL;                   // y der 2,30 m-Linie
+      setAttrs(lineParallel, { x1: A.x, y1: yP, x2: B.x, y2: yP });
+
+      // Breite des Daches auf Höhe yP (linear beim isosceles Dreieck)
+      let w = 0;
+      if (h > 0){
+        if (PARALLEL <= 0) w = L;           // auf/unter AB → volle Breite
+        else if (PARALLEL >= h) w = 0;      // über der Spitze → nichts
+        else w = L * (1 - (PARALLEL / h));  // linear
+      }
+      const percent = L > 0 ? (w / L) * 100 : 0;
+
+      // Segment & Fläche
+      if (w > 0){
+        const half = w / 2; const xL = midX - half; const xR = midX + half;
+        setAttrs(segInside, { x1: xL, y1: yP, x2: xR, y2: yP }); segInside.style.display = 'inline';
+        setAttrs(fillArea, { x: xL, y: yP, width: w, height: PARALLEL }); fillArea.style.display = 'inline';
+        setAttrs(fullLabel, { x: midX, y: yP + PARALLEL/2 });
+        fullLabel.style.display = (percent >= 75) ? 'inline' : 'none';
+      } else {
+        segInside.style.display = 'none';
+        fillArea.style.display = 'none';
+        fullLabel.style.display = 'none';
+      }
+
+      // Text-Infos
+      percentInfo.textContent = `Einschluss: ${percent.toFixed(1)}% von Hausbreite (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
+
+      // Tür & Fenster im Hauskörper
+      const dW = DOOR_W_M / SCALE, dH = DOOR_H_M / SCALE;
+      const dX = A.x + (L - dW) / 2, dY = A.y + WALL_H - dH;
+      setAttrs(door, { x: dX, y: dY, width: dW, height: dH });
+      setAttrs(handle, { cx: dX + dW * 0.75, cy: dY + dH / 2 });
+
+      const s = WIN_S_M / SCALE, pad = WIN_PAD_M / SCALE, yW = A.y + pad + WIN_Y_OFF_M / SCALE;
+      const xL = A.x + pad, xR = B.x - pad - s;
+      setAttrs(winL, { x: xL, y: yW, width: s, height: s });
+      setAttrs(winR, { x: xR, y: yW, width: s, height: s });
+      setAttrs(winLh, { x1: xL, y1: yW + s/2, x2: xL + s, y2: yW + s/2 });
+      setAttrs(winLv, { x1: xL + s/2, y1: yW, x2: xL + s/2, y2: yW + s });
+      setAttrs(winRh, { x1: xR, y1: yW + s/2, x2: xR + s, y2: yW + s/2 });
+      setAttrs(winRv, { x1: xR + s/2, y1: yW, x2: xR + s/2, y2: yW + s });
+    }
+
+    // Initial zeichnen & Events
+    update();
+    document.getElementById("angle").addEventListener('input', update);
+    document.getElementById("base").addEventListener('input', update);
+  </script>
+</body>
+</html>
