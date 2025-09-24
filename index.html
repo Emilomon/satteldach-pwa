@@ -38,7 +38,8 @@
 <body>
   <div class="card">
     <h1>Satteldach</h1>
-    <p>Nutze die Schieberegler um die Hausbreite & Dachneigung einzustellen. Die grüne Fläche zeigt die Geschossfläche nach BauO im Dachgeschoss an.Ab<strong>= 75&nbsp;%</strong> erscheint „Vollgeschoss“.</p>
+    <p>Nutze die Schieberegler um die Hausbreite & Dachneigung einzustellen. Die grüne Fläche zeigt die Geschossfläche nach BauO im Dachgeschoss an. </p>
+    <p>Ab<strong> 75&nbsp;%</strong> erscheint „Vollgeschoss“.</p>
 
     <div class="controls">
       <div class="control-group">
@@ -52,7 +53,7 @@
         <span id="angleOut" class="badge">30°</span>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap">
-        <div id="percentInfo" class="badge">Einschluss: 0.0% von Hausbreite (0.00 m von 12.00 m)</div>
+        <div id="percentInfo" class="badge">0.0% von Hausbreite (0.00 m von 12.00 m)</div>
       </div>
     </div>
 
@@ -216,7 +217,7 @@
       }
 
       // Text-Infos
-      percentInfo.textContent = `Einschluss: ${percent.toFixed(1)}% von Hausbreite (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
+      percentInfo.textContent = `${percent.toFixed(1)}% von Hausbreite (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
 
       // Tür & Fenster im Hauskörper
       const dW = DOOR_W_M / SCALE, dH = DOOR_H_M / SCALE;
