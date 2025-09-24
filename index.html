@@ -73,13 +73,7 @@
             <line id="lineParallel" stroke="#ffcc70" stroke-dasharray="10 6" stroke-width="3"/>
             <line id="segInside" stroke="var(--accent)" stroke-width="6"/>
             <rect id="fillArea" fill="var(--fillarea)" fill-opacity="0.4"/>
-            <text id="fullLabel" fill="#ffffff" font-size="32" text-anchor="middle" dominant-baseline="middle" style="display:none;font-weight:700;">Vollgeschoss</text>
-            <circle id="ptA" r="10" fill="#ffcc70"/>
-            <circle id="ptB" r="10" fill="#9ad1ff"/>
-            <circle id="ptC" r="10" fill="#72e6b9"/>
-            <text id="lblA" fill="#fff" font-size="24">A</text>
-            <text id="lblB" fill="#fff" font-size="24">B</text>
-            <text id="lblC" fill="#fff" font-size="24">C</text>
+            <text id="fullLabel" fill="#ffffff" font-size="64" text-anchor="middle" dominant-baseline="middle" style="display:none;font-weight:700;">Vollgeschoss</text>
           </svg>
         </div>
       </div>
@@ -104,7 +98,6 @@ const angleInput=$("angle"),baseInput=$("base"),angleOut=$("angleOut"),baseOut=$
 // Seitenansicht Elemente
 const tri=$("tri"),house=$("house"),fillArea=$("fillArea"),fullLabel=$("fullLabel"),segInside=$("segInside"),lineAB=$("lineAB"),lineParallel=$("lineParallel"),percentInfo=$("percentInfo");
 const door=$("door"),handle=$("handle"),winL=$("winL"),winLh=$("winLh"),winLv=$("winLv"),winR=$("winR"),winRh=$("winRh"),winRv=$("winRv");
-const ptA=$("ptA"),ptB=$("ptB"),ptC=$("ptC"),lblA=$("lblA"),lblB=$("lblB"),lblC=$("lblC");
 // Draufsicht Elemente
 const fullLabelPlan=$("fullLabelPlan"),planInclude=$("planInclude"),planEG=$("planEG"),planRoofLeft=$("planRoofLeft"),planRoofRight=$("planRoofRight");
 
@@ -121,11 +114,7 @@ function update(){
   setAttrs(house,{x:A.x,y:A.y,width:L,height:WALL_H});
   tri.setAttribute('points',`${C.x},${C.y} ${A.x},${A.y} ${B.x},${B.y}`);
 
-  // Punkte & Buchstaben
-  setAttrs(ptA,{cx:A.x,cy:A.y}); setAttrs(ptB,{cx:B.x,cy:B.y}); setAttrs(ptC,{cx:C.x,cy:C.y});
-  setAttrs(lblA,{x:A.x-18,y:A.y-10}); setAttrs(lblB,{x:B.x+6,y:B.y-10}); setAttrs(lblC,{x:C.x+8,y:C.y-10});
-
-  // Tür
+ // Tür
   const dW=DOOR_W_M/SCALE,dH=DOOR_H_M/SCALE; const dX=A.x+(L-dW)/2,dY=A.y+WALL_H-dH;
   setAttrs(door,{x:dX,y:dY,width:dW,height:dH}); setAttrs(handle,{cx:dX+dW*0.75,cy:dY+dH/2});
 
