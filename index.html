@@ -98,8 +98,64 @@
     </div>
   </div>
   <script>
-    const SCALE=0.01,PARALLEL_M=2.30,WALL_H_M=3.00,PLAN_LEN_M=10.0;const DOOR_W_M=1.00,DOOR_H_M=2.00,WIN_S_M=1.20,WIN_PAD_M=0.50,WIN_Y_OFF_M=0.60;const PARALLEL=PARALLEL_M/SCALE,WALL_H=WALL_H_M/SCALE,PLAN_LEN=PLAN_LEN_M/SCALE;const A0={x:500,y:1400};let A={...A0};let B={x:A.x+(12/SCALE),y:A.y};const $=(id)=>document.getElementById(id);const angleInput=$("angle"),baseInput=$("base"),angleOut=$("angleOut"),baseOut=$("baseOut"),tri=$("tri"),house=$("house"),fillArea=$("fillArea"),fullLabel=$("fullLabel"),segInside=$("segInside"),lineAB=$("lineAB"),lineParallel=$("lineParallel"),percentInfo=$("percentInfo"),fullLabelPlan=$("fullLabelPlan"),planInclude=$("planInclude"),planEG=$("planEG"),planRoofLeft=$("planRoofLeft"),planRoofRight=$("planRoofRight");const setAttrs=(el,o)=>{for(const k in o)el.setAttribute(k,o[k]);};const rad=(deg)=>(deg*Math.PI)/180;function update(){const tDeg=+angleInput.value,width_m=+baseInput.value,L=width_m/SCALE;A={...A0};B={x:A.x+L,y:A.y};angleOut.textContent=`${tDeg}\u00B0`;baseOut.textContent=`${width_m.toFixed(1)} m`;const midX=(A.x+B.x)/2;const h=(L/2)*Math.tan(rad(tDeg));const C={x:midX,y:A.y-h};setAttrs(house,{x:A.x,y:A.y,width:L,height:WALL_H});tri.setAttribute('points',`${C.x},${C.y} ${A.x},${A.y} ${B.x},${B.y}`);setAttrs(lineAB,{x1:A.x,y1:A.y,x2:B.x,y2:B.y});const yP=A.y-PARALLEL;setAttrs(lineParallel,{x1:A.x,y1:yP,x2:B.x,y2:yP});let w=0;if(h>0){if(PARALLEL<=0)w=L;else if(PARALLEL>=h)w=0;else w=L*(1-(PARALLEL/h));}const percent=L>0?(w/L)*100:0;if(w>0){const half=w/2;const xLw=midX-half;const xRw=midX+half;setAttrs(segInside,{x1:xLw,y1:yP,x2:xRw,y2:yP});segInside.style.display='inline';setAttrs(fillArea,{x:xLw,y:yP,width:w,height:PARALLEL});fillArea.style.display='inline';setAttrs(fullLabel,{x:midX,y:yP+PARALLEL/2});fullLabel.style.display=percent>=75?'inline':'none';}else{segInside.style.display='none';fillArea.style.display='none';fullLabel.style.display='none';}percentInfo.textContent=`${percent.toFixed(1)}% von Hausbreite (${(width_m*percent/100).toFixed(2)} m von ${width_m.toFixed(2)} m)`; // Draufsicht Rechtecke
-      const egW=L,egH=PLAN_LEN;setAttrs(planEG,{x:A.x,y:A.y,width:egW,height:egH});const roofW=(L-egW)/2;setAttrs(planRoofLeft,{x:A.x,y:A.y,width:roofW,height:egH});setAttrs(planRoofRight,{x:A.x+egW+roofW,y:A.y,width:roofW,height:egH});const incW=w;const incX=midX-w/2;setAttrs(planInclude,{x:incX,y:A.y,width:incW,height:egH});setAttrs(fullLabelPlan,{x:midX,y:A.y+egH/2});fullLabelPlan.style.display=percent>=75?'inline':'none';}angleInput.addEventListener('input',update);baseInput.addEventListener('input',update);update();
+    const SCALE=0.01,PARALLEL_M=2.30,WALL_H_M=3.00,PLAN_LEN_M=10.0;const DOOR_W_M=1.00,DOOR_H_M=2.00,WIN_S_M=1.20,WIN_PAD_M=0.50,WIN_Y_OFF_M=0.60;const PARALLEL=PARALLEL_M/SCALE,WALL_H=WALL_H_M/SCALE,PLAN_LEN=PLAN_LEN_M/SCALE;const A0={x:500,y:1400};let A={...A0};let B={x:A.x+(12/SCALE),y:A.y};
+const $=(id)=>document.getElementById(id);
+const angleInput=$("angle"),baseInput=$("base"),angleOut=$("angleOut"),baseOut=$("baseOut");
+// Seitenansicht Elemente
+const tri=$("tri"),house=$("house"),fillArea=$("fillArea"),fullLabel=$("fullLabel"),segInside=$("segInside"),lineAB=$("lineAB"),lineParallel=$("lineParallel"),percentInfo=$("percentInfo");
+const door=$("door"),handle=$("handle"),winL=$("winL"),winLh=$("winLh"),winLv=$("winLv"),winR=$("winR"),winRh=$("winRh"),winRv=$("winRv");
+const ptA=$("ptA"),ptB=$("ptB"),ptC=$("ptC"),lblA=$("lblA"),lblB=$("lblB"),lblC=$("lblC");
+// Draufsicht Elemente
+const fullLabelPlan=$("fullLabelPlan"),planInclude=$("planInclude"),planEG=$("planEG"),planRoofLeft=$("planRoofLeft"),planRoofRight=$("planRoofRight");
+
+const setAttrs=(el,o)=>{for(const k in o)el.setAttribute(k,o[k]);};
+const rad=(deg)=>(deg*Math.PI)/180;
+
+function update(){
+  const tDeg=+angleInput.value,width_m=+baseInput.value,L=width_m/SCALE;A={...A0};B={x:A.x+L,y:A.y};
+  angleOut.textContent=`${tDeg}°`;baseOut.textContent=`${width_m.toFixed(1)} m`;
+
+  const midX=(A.x+B.x)/2;const h=(L/2)*Math.tan(rad(tDeg));const C={x:midX,y:A.y-h};
+
+  // ===== Seitenansicht: Haus, Dach, Punkte, Labels =====
+  setAttrs(house,{x:A.x,y:A.y,width:L,height:WALL_H});
+  tri.setAttribute('points',`${C.x},${C.y} ${A.x},${A.y} ${B.x},${B.y}`);
+
+  // Punkte & Buchstaben
+  setAttrs(ptA,{cx:A.x,cy:A.y}); setAttrs(ptB,{cx:B.x,cy:B.y}); setAttrs(ptC,{cx:C.x,cy:C.y});
+  setAttrs(lblA,{x:A.x-18,y:A.y-10}); setAttrs(lblB,{x:B.x+6,y:B.y-10}); setAttrs(lblC,{x:C.x+8,y:C.y-10});
+
+  // Tür
+  const dW=DOOR_W_M/SCALE,dH=DOOR_H_M/SCALE; const dX=A.x+(L-dW)/2,dY=A.y+WALL_H-dH;
+  setAttrs(door,{x:dX,y:dY,width:dW,height:dH}); setAttrs(handle,{cx:dX+dW*0.75,cy:dY+dH/2});
+
+  // Fenster links & rechts
+  const s=WIN_S_M/SCALE,pad=WIN_PAD_M/SCALE,yW=A.y+pad+WIN_Y_OFF_M/SCALE; const xLw=A.x+pad,xRw=B.x-pad-s;
+  setAttrs(winL,{x:xLw,y:yW,width:s,height:s}); setAttrs(winR,{x:xRw,y:yW,width:s,height:s});
+  setAttrs(winLh,{x1:xLw,y1:yW+s/2,x2:xLw+s,y2:yW+s/2}); setAttrs(winLv,{x1:xLw+s/2,y1:yW,x2:xLw+s/2,y2:yW+s});
+  setAttrs(winRh,{x1:xRw,y1:yW+s/2,x2:xRw+s,y2:yW+s/2}); setAttrs(winRv,{x1:xRw+s/2,y1:yW,x2:xRw+s/2,y2:yW+s});
+
+  // Traufe AB & Parallele
+  setAttrs(lineAB,{x1:A.x,y1:A.y,x2:B.x,y2:B.y}); const yP=A.y-PARALLEL; setAttrs(lineParallel,{x1:A.x,y1:yP,x2:B.x,y2:yP});
+
+  // Breite des Daches in Höhe der Parallelen
+  let w=0; if(h>0){ if(PARALLEL<=0) w=L; else if(PARALLEL>=h) w=0; else w=L*(1-(PARALLEL/h)); }
+  const percent=L>0?(w/L)*100:0;
+
+  if(w>0){ const half=w/2; const xL=midX-half; const xR=midX+half; setAttrs(segInside,{x1:xL,y1:yP,x2:xR,y2:yP}); segInside.style.display='inline'; setAttrs(fillArea,{x:xL,y:yP,width:w,height:PARALLEL}); fillArea.style.display='inline'; setAttrs(fullLabel,{x:midX,y:yP+PARALLEL/2}); fullLabel.style.display=(percent>=75)?'inline':'none'; }
+  else{ segInside.style.display='none'; fillArea.style.display='none'; fullLabel.style.display='none'; }
+
+  percentInfo.textContent=`${percent.toFixed(1)}% von Hausbreite (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
+
+  // ===== Draufsicht: oben ausrichten, grün mittig, rot außen =====
+  const PX=A.x; const PY=A0.y-PLAN_LEN-50; // höher gesetzt, damit mit der Ansicht fluchtet
+  setAttrs(planEG,{x:PX,y:PY,width:L,height:PLAN_LEN});
+  const wGreen=Math.max(0,Math.min(w,L)); const xGreen=PX+(L-wGreen)/2; setAttrs(planInclude,{x:xGreen,y:PY,width:wGreen,height:PLAN_LEN});
+  const leftW=Math.max(0,xGreen-PX); const rightW=Math.max(0,(PX+L)-(xGreen+wGreen));
+  setAttrs(planRoofLeft,{x:PX,y:PY,width:leftW,height:PLAN_LEN}); setAttrs(planRoofRight,{x:xGreen+wGreen,y:PY,width:rightW,height:PLAN_LEN});
+  setAttrs(fullLabelPlan,{x:PX+L/2,y:PY+PLAN_LEN/2}); fullLabelPlan.style.display=(percent>=75)?'inline':'none';
+}
+angleInput.addEventListener('input',update);baseInput.addEventListener('input',update);update();
   </script>
 </body>
 </html>
