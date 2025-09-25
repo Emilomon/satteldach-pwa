@@ -75,6 +75,7 @@
             <line id="segInside" stroke="var(--accent)" stroke-width="6"/>
             <rect id="fillArea" fill="var(--fillarea)" fill-opacity="0.4"/>
             <text id="fullLabel" fill="#ffffff" font-size="64" text-anchor="middle" dominant-baseline="middle" style="display:none;font-weight:700;">Vollgeschoss</text>
+            <text id="percentLabelSide" fill="#ffffff" font-size="36" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none;">0%</text>
           </svg>
         </div>
       </div>
@@ -87,6 +88,7 @@
             <rect id="planInclude" fill="var(--plan-include)" opacity="0.6"/>
             <rect id="planRoofRight" fill="var(--plan-roof)" opacity="0.9"/>
             <text id="fullLabelPlan" fill="#ffffff" font-size="64" text-anchor="middle" dominant-baseline="middle" style="display:none;font-weight:700;">Vollgeschoss</text>
+            <text id="percentLabelPlan" fill="#ffffff" font-size="36" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none;">0%</text>
           </svg>
         </div>
       </div>
@@ -97,10 +99,10 @@
 const $=(id)=>document.getElementById(id);
 const angleInput=$("angle"),baseInput=$("base"),angleOut=$("angleOut"),baseOut=$("baseOut");
 // Seitenansicht Elemente
-const tri=$("tri"),house=$("house"),fillArea=$("fillArea"),fullLabel=$("fullLabel"),segInside=$("segInside"),lineAB=$("lineAB"),lineParallel=$("lineParallel"),percentInfo=$("percentInfo");
+const tri=$("tri"),house=$("house"),fillArea=$("fillArea"),fullLabel=$("fullLabel"),segInside=$("segInside"),lineAB=$("lineAB"),lineParallel=$("lineParallel"),percentInfo=$("percentInfo"),percentLabelSide=$("percentLabelSide");
 const door=$("door"),handle=$("handle"),winL=$("winL"),winLh=$("winLh"),winLv=$("winLv"),winR=$("winR"),winRh=$("winRh"),winRv=$("winRv");
 // Draufsicht Elemente
-const fullLabelPlan=$("fullLabelPlan"),planInclude=$("planInclude"),planEG=$("planEG"),planRoofLeft=$("planRoofLeft"),planRoofRight=$("planRoofRight");
+const fullLabelPlan=$("fullLabelPlan"),percentLabelPlan=$("percentLabelPlan"),planInclude=$("planInclude"),planEG=$("planEG"),planRoofLeft=$("planRoofLeft"),planRoofRight=$("planRoofRight");
 
 const setAttrs=(el,o)=>{for(const k in o)el.setAttribute(k,o[k]);};
 const rad=(deg)=>(deg*Math.PI)/180;
@@ -132,8 +134,8 @@ function update(){
   let w=0; if(h>0){ if(PARALLEL<=0) w=L; else if(PARALLEL>=h) w=0; else w=L*(1-(PARALLEL/h)); }
   const percent=L>0?(w/L)*100:0;
 
-  if(w>0){ const half=w/2; const xL=midX-half; const xR=midX+half; setAttrs(segInside,{x1:xL,y1:yP,x2:xR,y2:yP}); segInside.style.display='inline'; setAttrs(fillArea,{x:xL,y:yP,width:w,height:PARALLEL}); fillArea.style.display='inline'; setAttrs(fullLabel,{x:midX,y:yP+PARALLEL/2}); fullLabel.style.display=(percent>=75)?'inline':'none'; }
-  else{ segInside.style.display='none'; fillArea.style.display='none'; fullLabel.style.display='none'; }
+  if(w>0){ const half=w/2; const xL=midX-half; const xR=midX+half; setAttrs(segInside,{x1:xL,y1:yP,x2:xR,y2:yP}); segInside.style.display='inline'; setAttrs(fillArea,{x:xL,y:yP,width:w,height:PARALLEL}); fillArea.style.display='inline'; setAttrs(fullLabel,{x:midX,y:yP+PARALLEL/2-40}); fullLabel.style.display=(percent>=75)?'inline':'none'; setAttrs(percentLabelSide,{x:midX,y:yP+PARALLEL/2+40}); percentLabelSide.textContent=`${percent.toFixed(1)}%`; percentLabelSide.style.display='inline'; }
+  else{ segInside.style.display='none'; fillArea.style.display='none'; fullLabel.style.display='none'; percentLabelSide.style.display='none'; }
 
   percentInfo.textContent=`${percent.toFixed(1)}% des Dachgeschosses ist höher als 2,30 m (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
 
@@ -143,7 +145,8 @@ function update(){
   const wGreen=Math.max(0,Math.min(w,L)); const xGreen=PX+(L-wGreen)/2; setAttrs(planInclude,{x:xGreen,y:PY,width:wGreen,height:PLAN_LEN});
   const leftW=Math.max(0,xGreen-PX); const rightW=Math.max(0,(PX+L)-(xGreen+wGreen));
   setAttrs(planRoofLeft,{x:PX,y:PY,width:leftW,height:PLAN_LEN}); setAttrs(planRoofRight,{x:xGreen+wGreen,y:PY,width:rightW,height:PLAN_LEN});
-  setAttrs(fullLabelPlan,{x:PX+L/2,y:PY+PLAN_LEN/2}); fullLabelPlan.style.display=(percent>=75)?'inline':'none';
+  setAttrs(fullLabelPlan,{x:PX+L/2,y:PY+PLAN_LEN/2-40}); fullLabelPlan.style.display=(percent>=75)?'inline':'none';
+  setAttrs(percentLabelPlan,{x:PX+L/2,y:PY+PLAN_LEN/2+40}); percentLabelPlan.textContent=`${percent.toFixed(1)}%`; percentLabelPlan.style.display='inline';
 }
 angleInput.addEventListener('input',update);baseInput.addEventListener('input',update);update();
   </script>
