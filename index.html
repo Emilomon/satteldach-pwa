@@ -36,7 +36,7 @@
     <div>
       <div style="height:20px"></div>
       <h1>Satteldach</h1>
-      <p>Nutze die Schieberegler um die <strong>Hausbreite</strong> & <strong>Dachneigung</strong> einzustellen. Die grüne Fläche zeigt die Geschossfläche nach BauO im Dachgeschoss an.</p>
+      <p>Nutze die Schieberegler um die <strong>Hausbreite</strong> und <strong>Dachneigung</strong> einzustellen. Die Fläche unter dem Dach, die eine Höhe von mehr als 2,30 m hat wird in <span style="color: green;">grün</span> angezeigt.</p>
       <p>Ab <strong>75%</strong> erscheint <strong>„Vollgeschoss“</strong>.</p>
     </div>
     <div class="controls">
@@ -51,7 +51,7 @@
         <span id="angleOut" class="badge">30°</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
-        <div id="percentInfo" class="badge">0.0% von Hausbreite (0.00 m von 12.00 m)</div>
+        <div id="percentInfo" class="badge">0.0% des Dachgeschosses ist höher als 2,30 m (0.00 m von 12.00 m)</div>
       </div>
     </div>
     <div class="views">
@@ -135,7 +135,7 @@ function update(){
   if(w>0){ const half=w/2; const xL=midX-half; const xR=midX+half; setAttrs(segInside,{x1:xL,y1:yP,x2:xR,y2:yP}); segInside.style.display='inline'; setAttrs(fillArea,{x:xL,y:yP,width:w,height:PARALLEL}); fillArea.style.display='inline'; setAttrs(fullLabel,{x:midX,y:yP+PARALLEL/2}); fullLabel.style.display=(percent>=75)?'inline':'none'; }
   else{ segInside.style.display='none'; fillArea.style.display='none'; fullLabel.style.display='none'; }
 
-  percentInfo.textContent=`${percent.toFixed(1)}% von Hausbreite (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
+  percentInfo.textContent=`${percent.toFixed(1)}% des Dachgeschosses ist höher als 2,30 m (${(w*SCALE).toFixed(2)} m von ${width_m.toFixed(2)} m)`;
 
   // ===== Draufsicht: oben ausrichten, grün mittig, rot außen =====
   const PX=A.x; const PY=A0.y-PLAN_LEN-50; // höher gesetzt, damit mit der Ansicht fluchtet
